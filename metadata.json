@@ -1,0 +1,8 @@
+{
+  "name": "Vallabh Classes – Maths Assessment",
+  "description": "Free Maths assessment website for students of Class 10, 11 Science and 12 Science (CBSE & GSEB) by Hemang Shah Sir (30 years experience), Harni–Sama Link Road, Vadodara.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
