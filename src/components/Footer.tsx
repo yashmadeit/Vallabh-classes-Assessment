@@ -4,9 +4,10 @@ import { Phone, MapPin, GraduationCap, ArrowUp } from 'lucide-react';
 interface FooterProps {
   onNavigateHome: () => void;
   onOpenAssessment: () => void;
+  onNavigateFaculty?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigateHome, onOpenAssessment }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigateHome, onOpenAssessment, onNavigateFaculty }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -86,6 +87,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateHome, onOpenAssessment
                   Start Free Assessment →
                 </button>
               </li>
+              {onNavigateFaculty && (
+                <li className="pt-1">
+                  <button
+                    onClick={onNavigateFaculty}
+                    className="text-slate-400 hover:text-teal-300 transition-colors cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>Faculty Management Portal (Private)</span>
+                  </button>
+                </li>
+              )}
             </ul>
           </div>
 

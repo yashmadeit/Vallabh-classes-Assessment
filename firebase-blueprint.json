@@ -1,0 +1,219 @@
+{
+  "entities": {
+    "Question": {
+      "title": "Question",
+      "description": "Mathematical assessment question with verification lifecycle",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "chapterNumber": { "type": "number" },
+        "chapterTitle": { "type": "string", "maxLength": 128 },
+        "topic": { "type": "string", "maxLength": 128 },
+        "difficulty": { "type": "string", "enum": ["Foundational", "Moderate", "Advanced", "Easy", "Medium", "Hard"] },
+        "classId": { "type": "string", "maxLength": 32 },
+        "board": { "type": "string", "maxLength": 32 },
+        "subject": { "type": "string", "maxLength": 64 },
+        "questionText": { "type": "string", "maxLength": 4096 },
+        "correctOption": { "type": "string", "enum": ["A", "B", "C", "D"] },
+        "explanation": { "type": "string", "maxLength": 8192 },
+        "hemangSirTip": { "type": "string", "maxLength": 2048 },
+        "sourceType": { "type": "string", "maxLength": 64 },
+        "sourceReference": { "type": "string", "maxLength": 256 },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["Draft", "Pending Verification", "Approved", "Rejected", "Archived", "Flagged for Correction", "Under Correction"]
+        },
+        "version": { "type": "number" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "updatedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "chapterTitle", "topic", "questionText", "correctOption", "explanation", "verificationStatus"]
+    },
+    "QuestionCorrection": {
+      "title": "QuestionCorrection",
+      "description": "Issue report and correction proposal for question bank item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "questionId": { "type": "string", "maxLength": 128 },
+        "chapterTitle": { "type": "string", "maxLength": 128 },
+        "topic": { "type": "string", "maxLength": 128 },
+        "issueCategory": {
+          "type": "string",
+          "enum": [
+            "Incorrect question",
+            "Incorrect answer",
+            "Incorrect explanation",
+            "Mathematical calculation error",
+            "Incorrect syllabus mapping",
+            "Duplicate question",
+            "Formatting issue",
+            "Other"
+          ]
+        },
+        "description": { "type": "string", "maxLength": 4096 },
+        "suggestedCorrection": { "type": "string", "maxLength": 4096 },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High", "Critical"] },
+        "reportedBy": { "type": "string", "maxLength": 128 },
+        "reportedByEmail": { "type": "string", "maxLength": 128 },
+        "reportedByUid": { "type": "string", "maxLength": 128 },
+        "status": {
+          "type": "string",
+          "enum": ["Flagged for Correction", "Under Correction", "Resolved", "Rejected"]
+        },
+        "resolvedBy": { "type": "string", "maxLength": 128 },
+        "resolutionNotes": { "type": "string", "maxLength": 2048 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "questionId", "issueCategory", "description", "priority", "status", "reportedBy"]
+    },
+    "QuestionVersion": {
+      "title": "QuestionVersion",
+      "description": "Historical snapshot of a question prior to modification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "questionId": { "type": "string", "maxLength": 128 },
+        "version": { "type": "number" },
+        "questionSnapshot": { "type": "string", "maxLength": 65536 },
+        "modifiedBy": { "type": "string", "maxLength": 128 },
+        "modifiedByUid": { "type": "string", "maxLength": 128 },
+        "reason": { "type": "string", "maxLength": 1024 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "questionId", "version", "questionSnapshot", "modifiedBy", "timestamp"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated faculty or administrator account",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["admin", "faculty"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "lastLoginAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Privileged administrator designation document",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "enum": ["admin"] }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable log of changes, approvals, corrections and backups",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "action": { "type": "string", "maxLength": 128 },
+        "targetType": { "type": "string", "maxLength": 64 },
+        "targetId": { "type": "string", "maxLength": 128 },
+        "details": { "type": "string", "maxLength": 4096 },
+        "performedBy": { "type": "string", "maxLength": 128 },
+        "performedByUid": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "action", "targetType", "details", "performedBy", "timestamp"]
+    },
+    "SystemBackup": {
+      "title": "SystemBackup",
+      "description": "Database backup record and exported payload snapshot",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "backupType": { "type": "string", "enum": ["manual", "automated", "pre_restore"] },
+        "questionCount": { "type": "number" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "timestamp": { "type": "string", "maxLength": 64 },
+        "dataPayload": { "type": "string", "maxLength": 1048576 },
+        "status": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "backupType", "questionCount", "createdBy", "timestamp", "dataPayload"]
+    },
+    "AssessmentResult": {
+      "title": "AssessmentResult",
+      "description": "Archived student diagnostic evaluation result preserving point-in-time answers",
+      "type": "object",
+      "properties": {
+        "resultId": { "type": "string", "maxLength": 128 },
+        "studentName": { "type": "string", "maxLength": 128 },
+        "studentClass": { "type": "string", "maxLength": 32 },
+        "board": { "type": "string", "maxLength": 32 },
+        "overallScore": { "type": "number" },
+        "totalQuestions": { "type": "number" },
+        "overallAccuracyPercent": { "type": "number" },
+        "attemptedAccuracyPercent": { "type": "number" },
+        "timeSpentSeconds": { "type": "number" },
+        "submittedAt": { "type": "string", "maxLength": 64 },
+        "resultPayload": { "type": "string", "maxLength": 262144 }
+      },
+      "required": ["resultId", "studentName", "overallScore", "totalQuestions", "submittedAt"]
+    },
+    "SystemSettings": {
+      "title": "SystemSettings",
+      "description": "Global assessment parameters and configuration",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "defaultQuestionCount": { "type": "number" },
+        "defaultTimeMinutes": { "type": "number" },
+        "passingScorePercent": { "type": "number" },
+        "minimumAttemptsForDiagnosis": { "type": "number" },
+        "distributionStrategy": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 },
+        "updatedBy": { "type": "string", "maxLength": 128 }
+      },
+      "required": ["id", "defaultQuestionCount", "defaultTimeMinutes"]
+    }
+  },
+  "firestore": {
+    "/questions/{questionId}": {
+      "schema": "Question",
+      "description": "Central repository of verified maths assessment questions"
+    },
+    "/question_corrections/{correctionId}": {
+      "schema": "QuestionCorrection",
+      "description": "Issue reports and correction requests filed by faculty or admin"
+    },
+    "/question_versions/{versionId}": {
+      "schema": "QuestionVersion",
+      "description": "Historical snapshots of questions before edits or restores"
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile with role designation"
+    },
+    "/admins/{adminId}": {
+      "schema": "AdminRecord",
+      "description": "List of administrative UIDs for security rule validation"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Chronological audit trail of all administrative and faculty events"
+    },
+    "/system_backups/{backupId}": {
+      "schema": "SystemBackup",
+      "description": "Automated and manual snapshots for data recovery"
+    },
+    "/assessment_results/{resultId}": {
+      "schema": "AssessmentResult",
+      "description": "Archived student diagnostic evaluation result preserving point-in-time answers"
+    },
+    "/system_settings/{settingId}": {
+      "schema": "SystemSettings",
+      "description": "Central assessment configuration settings"
+    }
+  }
+}

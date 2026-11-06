@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny global catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Global Helpers
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Role-based authorization
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'nikhilprasad9797@gmail.com' ||
+        request.auth.token.email == 'admin@vallabhclasses.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isFaculty() {
+      return isSignedIn() && (
+        isAdmin() ||
+        exists(/databases/$(database)/documents/users/$(request.auth.uid))
+      );
+    }
+
+    // 1. Questions Collection
+    match /questions/{questionId} {
+      allow get: if isValidId(questionId) && (
+        (resource.data.verificationStatus == 'Approved') ||
+        isFaculty()
+      );
+      
+      allow list: if (
+        (resource.data.verificationStatus == 'Approved') ||
+        isFaculty()
+      );
+
+      // Administrator can create any question (including initial Approved migration).
+      // Faculty can create Draft or Pending Verification questions.
+      allow create: if isValidId(questionId) && (
+        isAdmin() ||
+        (isFaculty() && incoming().verificationStatus in ['Draft', 'Pending Verification'])
+      );
+
+      allow update: if isValidId(questionId) && (
+        isAdmin() ||
+        // Faculty reporting an issue: can transition status to 'Flagged for Correction'
+        (isFaculty() && incoming().verificationStatus == 'Flagged for Correction')
+      );
+
+      allow delete: if isAdmin() && isValidId(questionId);
+    }
+
+    // 2. Question Corrections & Issue Reports
+    match /question_corrections/{correctionId} {
+      allow get, list: if isFaculty();
+      allow create: if isFaculty() && isValidId(correctionId);
+      allow update: if isAdmin() && isValidId(correctionId);
+      allow delete: if isAdmin() && isValidId(correctionId);
+    }
+
+    // 3. Question Version History (Immutable historical records)
+    match /question_versions/{versionId} {
+      allow get, list: if isFaculty();
+      allow create: if isFaculty() && isValidId(versionId);
+      allow update: if false;
+      allow delete: if isAdmin() && isValidId(versionId);
+    }
+
+    // 4. Users Collection
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // 5. Admins Collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 6. Audit Logs (Immutable trail)
+    match /audit_logs/{logId} {
+      allow get, list: if isAdmin();
+      allow create: if isFaculty() && isValidId(logId);
+      allow update, delete: if false;
+    }
+
+    // 7. System Backups (Admin restricted)
+    match /system_backups/{backupId} {
+      allow read, write: if isAdmin() && isValidId(backupId);
+    }
+
+    // 8. Assessment Results (Point-in-time immutable student records)
+    match /assessment_results/{resultId} {
+      allow get: if isValidId(resultId);
+      allow list: if isFaculty();
+      allow create: if isValidId(resultId);
+      allow update, delete: if isAdmin() && isValidId(resultId);
+    }
+
+    // 9. System Settings (Assessment configurations)
+    match /system_settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(settingId);
+    }
+  }
+}

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, X, Phone, GraduationCap } from 'lucide-react';
+import { Menu, X, Phone, GraduationCap, Shield } from 'lucide-react';
 import { StudentProfile } from '../types/assessment';
 
 interface HeaderProps {
-  currentView: 'home' | 'chapters';
+  currentView: 'home' | 'chapters' | 'assessment' | 'report' | 'faculty';
   onNavigateHome: () => void;
   onNavigateChapters: () => void;
+  onNavigateFaculty: () => void;
   onOpenAssessmentForm: () => void;
   student: StudentProfile | null;
 }
@@ -14,10 +15,16 @@ export const Header: React.FC<HeaderProps> = ({
   currentView,
   onNavigateHome,
   onNavigateChapters,
+  onNavigateFaculty,
   onOpenAssessmentForm,
   student,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // During active assessment or faculty portal, dedicated top bar handles controls.
+  if (currentView === 'assessment' || currentView === 'faculty') {
+    return null;
+  }
 
   const handleNavClick = (sectionId?: string) => {
     setMobileMenuOpen(false);
@@ -92,6 +99,14 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Contact
             </button>
+            <button
+              onClick={onNavigateFaculty}
+              className="hover:text-teal-700 transition-colors whitespace-nowrap flex items-center gap-1.5 text-slate-600"
+              title="Private Faculty Question Bank & Management"
+            >
+              <Shield className="w-3.5 h-3.5 text-teal-600" />
+              <span>Faculty Portal</span>
+            </button>
             {student && (
               <button
                 onClick={onNavigateChapters}
@@ -99,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({
                   currentView === 'chapters' ? 'text-teal-700 font-semibold' : 'text-slate-700'
                 }`}
               >
-                Chapters ({student.studentClass === '10' ? 'Class 10' : student.studentClass === '11-science' ? '11 Sci' : '12 Sci'})
+                Chapters (Class 10 CBSE)
               </button>
             )}
           </nav>
@@ -119,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={onNavigateChapters}
                 className="px-4 py-2 text-xs font-semibold text-white bg-teal-700 hover:bg-teal-800 rounded-lg transition-colors whitespace-nowrap shadow-xs"
               >
-                {currentView === 'chapters' ? 'Selected Chapters' : 'Continue Assessment'}
+                {currentView === 'chapters' ? 'Select Chapters' : 'Start Assessment'}
               </button>
             ) : (
               <button
@@ -178,6 +193,16 @@ export const Header: React.FC<HeaderProps> = ({
             >
               Contact & Location
             </button>
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigateFaculty();
+              }}
+              className="text-left px-3 py-2 rounded-md hover:bg-slate-50 transition-colors flex items-center gap-2 text-teal-800 font-semibold"
+            >
+              <Shield className="w-4 h-4 text-teal-600" />
+              <span>Faculty Portal (Restricted)</span>
+            </button>
             {student && (
               <button
                 onClick={() => {
@@ -186,7 +211,7 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="text-left px-3 py-2 rounded-md text-teal-700 font-semibold bg-teal-50"
               >
-                Go to Chapter Selection ({student.studentClass.toUpperCase()})
+                Select Chapters (Class 10 CBSE)
               </button>
             )}
           </nav>
@@ -202,7 +227,7 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className="w-full py-2.5 px-4 text-center text-sm font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors"
             >
-              {student ? 'Continue to Chapters' : 'Start Free Assessment'}
+              {student ? 'Go to Chapter Selection' : 'Start Free Assessment'}
             </button>
             <a
               href="tel:9824076529"
